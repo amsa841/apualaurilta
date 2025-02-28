@@ -1,245 +1,30 @@
-<!DOCTYPE html>
-<html lang="fi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laurilta apua</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f4f4f9;
-        }
+# Laurilta Apua - Queue Management System
 
-        .queue-container {
-            width: 80%;
-            max-width: 600px;
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
+This is a simple web-based queue management system designed to help students request and track assistance from a teacher or assistant named Lauri. The system allows students to add their names to a queue, mark themselves as having received help, or remove themselves from the queue if they no longer need assistance.
 
-        h2 {
-            margin-bottom: 20px;
-        }
+## Features
 
-        .queue-list {
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-        }
+- **Add Your Name**: Students can enter their names into the queue.
+- **Mark as Helped**: Students can mark themselves as having received help, which removes them from the queue.
+- **Remove from Queue**: Students can remove themselves from the queue if they no longer need assistance.
+- **Persistent Storage**: The queue data is stored in the browser's `localStorage`, so it persists even if the page is refreshed.
+- **Real-Time Updates**: If the queue is updated in another browser tab, the changes are reflected in real-time.
 
-        .queue-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 5px 0;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
+## How to Use
 
-        .queue-item span {
-            font-weight: bold;
-        }
+1. **Add Your Name**: Enter your name in the input field and click the "Lisää nimi" button or press Enter.
+2. **Mark as Helped**: Once you receive help, click the "Sain apua" button next to your name to remove yourself from the queue.
+3. **Remove from Queue**: If you no longer need help, click the "En tarvitse enää apua" button to remove yourself from the queue.
+4. **Refresh the Queue**: Use the "Päivitä lista" button to clear the entire queue.
 
-        .green {
-            color: green;
-        }
+## Code Structure
 
-        .red {
-            color: red;
-        }
+- **HTML**: The structure of the page, including the input field, buttons, and queue list.
+- **CSS**: Styling for the page, including colors, buttons, and layout.
+- **JavaScript**: Logic for managing the queue, including adding names, updating status, and saving data to `localStorage`.
 
-        .green-btn {
-            background-color: green;
-            color: white;
-            padding: 5px 10px;
-            cursor: pointer;
-            border-radius: 4px;
-            margin: 5px;
-        }
+## Installation
 
-        .green-btn:hover {
-            background-color: darkgreen;
-        }
-
-        .red-btn {
-            background-color: red;
-            color: white;
-            padding: 5px 10px;
-            cursor: pointer;
-            border-radius: 4px;
-            margin: 5px;
-        }
-
-        .red-btn:hover {
-            background-color: darkred;
-        }
-
-        input {
-            padding: 10px;
-            margin-bottom: 10px;
-            width: 80%;
-            max-width: 400px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-        }
-
-        button {
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        button:hover {
-            background-color: #45a049;
-        }
-
-        .refresh-btn {
-            background-color: #f44336;
-            color: white;
-            margin-top: 20px;
-        }
-
-        .refresh-btn:hover {
-            background-color: #d32f2f;
-        }
-
-    </style>
-</head>
-<body>
-
-    <div class="queue-container">
-        <h2>Laurilta apua</h2>
-        <input id="nameInput" type="text" placeholder="Syötä nimesi">
-        <button onclick="addName()">Lisää nimi</button>
-        <button class="refresh-btn" onclick="refreshQueue()">Päivitä lista</button>
-        <ul id="queueList" class="queue-list"></ul>
-    </div>
-
-    <script>
-        // Function to get the queue data from localStorage or initialize as an empty array
-        function getQueueData() {
-            const queue = localStorage.getItem('queueData');
-            return queue ? JSON.parse(queue) : [];
-        }
-
-        // Function to save the queue data to localStorage
-        function saveQueueData(queueData) {
-            localStorage.setItem('queueData', JSON.stringify(queueData));
-        }
-
-        // Function to render the queue list
-        function renderQueue() {
-            const queueData = getQueueData();
-            const queueList = document.getElementById('queueList');
-            queueList.innerHTML = '';  // Clear the existing list
-
-            // Loop through the queue data and create a list item for each person
-            queueData.forEach((student, index) => {
-                const li = document.createElement('li');
-                li.classList.add('queue-item');
-
-                const nameSpan = document.createElement('span');
-                nameSpan.textContent = student.name;
-
-                // Set the color of the name based on whether the student got help
-                if (student.gotHelp) {
-                    nameSpan.classList.add('green');
-                } else {
-                    nameSpan.classList.add('red');
-                }
-
-                // Create the buttons for updating the status
-                const greenBtn = document.createElement('button');
-                greenBtn.textContent = 'Sain apua';
-                greenBtn.classList.add('green-btn');
-
-                const redBtn = document.createElement('button');
-                redBtn.textContent = 'En tarvitse enää apua';
-                redBtn.classList.add('red-btn');
-
-                // Event listeners for the buttons to update the status
-                greenBtn.addEventListener('click', () => {
-                    const queueData = getQueueData();
-                    queueData.splice(index, 1);  // Remove the student from the list after help
-                    saveQueueData(queueData);  // Save the updated queue data to localStorage
-                    renderQueue();  // Re-render the queue after updating the status
-                });
-
-                redBtn.addEventListener('click', () => {
-                    const queueData = getQueueData();
-                    queueData.splice(index, 1);  // Remove the student from the list
-                    saveQueueData(queueData);  // Save the updated queue data to localStorage
-                    renderQueue();  // Re-render the queue after updating the status
-                });
-
-                // Append elements to the list item
-                li.appendChild(nameSpan);
-                li.appendChild(greenBtn);
-                li.appendChild(redBtn);
-
-                // Append list item to the list
-                queueList.appendChild(li);
-            });
-        }
-
-        // Function to add a name to the queue
-        function addName() {
-            const nameInput = document.getElementById('nameInput');
-            const name = nameInput.value.trim();
-
-            if (name) {
-                const queueData = getQueueData();
-                const student = {
-                    name: name,
-                    gotHelp: false
-                };
-                queueData.push(student);
-                saveQueueData(queueData);  // Save the updated queue data to localStorage
-                nameInput.value = '';  // Clear the input field
-                renderQueue();  // Re-render the queue after adding the name
-            } else {
-                alert('Ole hyvä ja syötä nimesi.');
-            }
-        }
-
-        // Function to refresh (clear) the queue
-        function refreshQueue() {
-            localStorage.removeItem('queueData');  // Remove all queue data from localStorage
-            renderQueue();  // Re-render the queue (it will be empty)
-        }
-
-        // Event listener for when localStorage changes in another tab
-        window.addEventListener('storage', function(event) {
-            if (event.key === 'queueData') {
-                renderQueue();  // Re-render the queue if localStorage changes
-            }
-        });
-
-        // Add event listener to handle the Enter key for adding the name
-        document.getElementById('nameInput').addEventListener('keydown', function(event) {
-            if (event.key === 'Enter') {
-                addName();  // Add the name when Enter is pressed
-            }
-        });
-
-        // Initial render of the queue
-        renderQueue();
-    </script>
-
-</body>
-</html>
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-username/laurilta-apua.git
